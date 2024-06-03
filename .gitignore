@@ -1,0 +1,5 @@
+# ignore .pcap files 
+*.pcap
+
+#ignore http_certificate
+http_ca.crt
