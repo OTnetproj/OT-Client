@@ -40,9 +40,11 @@ class Session(threading.Thread):
                     # turn on water pump 
                     if not pump_state and low_mark_state:
                         self.client.write_single_coil(WATER_PUMP_ADDR,1)
+                        print(f"{self.server_ip} water pump turned on")
                     #turn off water pump
                     elif pump_state and high_mark_state:
                         self.client.write_single_coil(WATER_PUMP_ADDR,0)
+                        print(f"{self.server_ip} water pump turned off")
                 time.sleep(1)
 
         except KeyboardInterrupt:
