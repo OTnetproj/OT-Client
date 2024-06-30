@@ -38,7 +38,7 @@ class Session(threading.Thread):
                     pump_state = self.client.read_coils(WATER_PUMP_ADDR,1)[0]
 
                     # turn on water pump 
-                    if not pump_state and low_mark_state:
+                    if not pump_state and not low_mark_state:
                         self.client.write_single_coil(WATER_PUMP_ADDR,1)
                         print(f"{self.server_ip} water pump turned on")
                     #turn off water pump
