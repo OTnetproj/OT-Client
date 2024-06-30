@@ -4,6 +4,7 @@ from pyModbusTCP.client import ModbusClient
 import time
 import random
 import threading
+import logging
 
 # init clients from outside list and remote registers define
 file_path='ModbusServers.txt'
@@ -11,6 +12,9 @@ WATER_LEVEL_ADDR = 0        # input register address for tank's water level
 HIGH_MARK_ADDR = 0          # discrete input and holding register addresses for HIGH mark state and threshold value 
 LOW_MARK_ADDR = 1           # discrete input and holding register addresses for LOW mark state and threshold value
 WATER_PUMP_ADDR = 0         # Coils address for water tank's pump status
+
+# define log file
+logging.basicConfig(level=logging.INFO, filename="/var/log/OT/ModbusClient.log", filemode="w", format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Session(threading.Thread):
     def __init__(self,server_ip,server_port,unit_id):
@@ -22,10 +26,13 @@ class Session(threading.Thread):
 
     def run(self):
         if not self.client.open():
+            logger
             print(f"    Failed to open session with server: {self.server_ip}")
+            logging.error(f"Error: failed to open session with server: {self.server_ip}")
             return
         else:
             print(f"    Connected to server: {self.server_ip}")
+            logging.info(f"Info: Connected to server: {self.server_ip}")
 
         try:
             while True:
@@ -42,22 +49,27 @@ class Session(threading.Thread):
                         case (high_mark_state, low_mark_state, pump_state) if not low_mark_state and not high_mark_state:
                             if pump_state == False:
                                 self.client.write_single_coil(WATER_PUMP_ADDR,True)
-                                print("Turn water pump ON")
+                                print(f"Turn {self.server_ip} water pump ON")
+                                logging.info(f"Info: Turn {self.server_ip} water pump ON")
                         # turn off pump
                         case (high_mark_state, low_mark_state, pump_state) if high_mark_state and low_mark_state:
                             if pump_state == True:
                                 self.client.write_single_coil(WATER_PUMP_ADDR,False)
-                                print("Turne water pump OFF")
+                                print(f"Turn {self.server_ip} water pump OFF")
+                                logging.info(f"Info: Turn {self.server_ip} water pump OFF")
 
                 else:
                     print("Can't read water level input register from server")
+                    logging.error(f"Error: Can't read {self.server_ip} water level")
                 time.sleep(1)
 
         except KeyboardInterrupt:
             print(f"Session for server {self.server_ip} is stopping")
+            logging.info(f"Info: Session for server {self.server_ip} is stopping")
         finally:
             self.client.close()
             print(f"Disconnected from server: {self.server_ip}")
+            logging.info(f"Info: Disconnected from server {self.server_ip}")
 
 def start_modbus_client(file_path):
     servers_list = []
