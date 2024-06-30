@@ -36,15 +36,21 @@ class Session(threading.Thread):
                     high_mark_state = self.client.read_discrete_inputs(HIGH_MARK_ADDR,1)[0]
                     low_mark_state = self.client.read_discrete_inputs(LOW_MARK_ADDR,1)[0]
                     pump_state = self.client.read_coils(WATER_PUMP_ADDR,1)[0]
+                    # turn on/off water pump according to water level sensors
+                    match (high_mark_state, low_mark_state, pump_state):
+                        # turn on pump
+                        case (high_mark_state, low_mark_state, pump_state) if not low_mark_state and not high_mark_state:
+                            if pump_state == False:
+                                self.client.write_single_coil(WATER_PUMP_ADDR,True)
+                                print("Turn water pump ON")
+                        # turn off pump
+                        case (high_mark_state, low_mark_state, pump_state) if high_mark_state and low_mark_state:
+                            if pump_state == True:
+                                self.client.write_single_coil(WATER_PUMP_ADDR,False)
+                                print("Turne water pump OFF")
 
-                    # turn on water pump 
-                    if not pump_state and not low_mark_state:
-                        self.client.write_single_coil(WATER_PUMP_ADDR,1)
-                        print(f"{self.server_ip} water pump turned on")
-                    #turn off water pump
-                    elif pump_state and high_mark_state:
-                        self.client.write_single_coil(WATER_PUMP_ADDR,0)
-                        print(f"{self.server_ip} water pump turned off")
+                else:
+                    print("Can't read water level input register from server")
                 time.sleep(1)
 
         except KeyboardInterrupt:
