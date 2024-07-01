@@ -8,3 +8,6 @@ http_ca.crt
 *.log
 *.txt
 
+# ignore servers details file
+*.ModbusServers.txt
+
