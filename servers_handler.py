@@ -9,7 +9,7 @@ from requests.auth import HTTPBasicAuth
 from urllib3.exceptions import InsecureRequestWarning
 
 elk_pass = os.getenv('ELASTIC_PASSWORD')
-url = "https://132.72.48.18:9200/servers/_doc?pipeline=add_date"
+url = "https://eesgi10.ee.bgu.ac.il:9200/servers/_doc?pipeline=add_date"
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 # define info and error logs for post requests
